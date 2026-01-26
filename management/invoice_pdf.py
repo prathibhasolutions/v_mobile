@@ -55,7 +55,7 @@ def number_to_words(num):
 def generate_invoice_pdf(invoice):
     """Generate PDF for an invoice"""
     buffer = BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=20, leftMargin=20, topMargin=20, bottomMargin=20)
+    doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=15, leftMargin=15, topMargin=15, bottomMargin=15)
     
     elements = []
     styles = getSampleStyleSheet()
@@ -64,48 +64,56 @@ def generate_invoice_pdf(invoice):
     title_style = ParagraphStyle(
         'CustomTitle',
         parent=styles['Heading1'],
-        fontSize=16,
+        fontSize=14,
         textColor=colors.black,
-        spaceAfter=6,
+        spaceAfter=8,
         alignment=TA_CENTER,
         fontName='Helvetica-Bold'
     )
     elements.append(Paragraph('Tax Invoice', title_style))
-    elements.append(Spacer(1, 0.2*inch))
+    elements.append(Spacer(1, 0.1*inch))
     
-    # Company and Invoice Header Table
+    # Company and Invoice Header Table - Side by side layout
+    company_text = Paragraph(
+        f'<b>{invoice.company_name}</b><br/>'
+        f'{invoice.company_address}<br/>'
+        f'GSTIN/UIN: {invoice.company_gstin}<br/>'
+        f'State Name - {invoice.company_state}, Code : {invoice.company_state_code}',
+        ParagraphStyle('CompanyStyle', parent=styles['Normal'], fontSize=8, leading=10)
+    )
+    
+    invoice_info_text = (
+        f'<b>Invoice No.</b><br/>{invoice.invoice_number}<br/><br/>'
+        f'<b>Dated</b><br/>{invoice.invoice_date.strftime("%d-%m-%Y")}<br/><br/>'
+        f'<b>Delivery Note</b><br/>{invoice.delivery_note or ""}<br/><br/>'
+        f'<b>Mode/Terms of Payment</b><br/>'
+    )
+    
+    other_info_text = (
+        f'<b>Supplier\'s Ref.</b><br/><br/>'
+        f'<b>Other Reference(s)</b><br/><br/>'
+        f'<b>Buyer\'s Order No.</b><br/><br/>'
+        f'<b>Dispatch Document No.</b><br/>'
+    )
+    
     header_data = [
         [
-            Paragraph(f'<b>{invoice.company_name}</b><br/>{invoice.company_address}<br/>GSTIN/UIN: {invoice.company_gstin}<br/>State Name: {invoice.company_state}, Code: {invoice.company_state_code}', styles['Normal']),
-            ''
-        ],
-        [
-            Paragraph('<b>Invoice No.</b>', styles['Normal']),
-            Paragraph(f'{invoice.invoice_number}', styles['Normal'])
-        ],
-        [
-            Paragraph('<b>Dated</b>', styles['Normal']),
-            Paragraph(f'{invoice.invoice_date.strftime("%d-%m-%Y")}', styles['Normal'])
-        ],
-        [
-            Paragraph('<b>Delivery Note</b>', styles['Normal']),
-            Paragraph(f'{invoice.delivery_note or ""}', styles['Normal'])
-        ],
-        [
-            Paragraph('<b>Mode/Terms of Payment</b>', styles['Normal']),
-            Paragraph('', styles['Normal'])
-        ],
+            company_text,
+            Paragraph(invoice_info_text, ParagraphStyle('InvoiceInfo', parent=styles['Normal'], fontSize=8, leading=10)),
+            Paragraph(other_info_text, ParagraphStyle('OtherInfo', parent=styles['Normal'], fontSize=8, leading=10))
+        ]
     ]
     
-    header_table = Table(header_data, colWidths=[3.5*inch, 2.5*inch])
+    header_table = Table(header_data, colWidths=[2.5*inch, 1.8*inch, 1.7*inch])
     header_table.setStyle(TableStyle([
         ('GRID', (0, 0), (-1, -1), 1, colors.black),
         ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-        ('FONTNAME', (0, 0), (0, 0), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, -1), 9),
+        ('FONTSIZE', (0, 0), (-1, -1), 8),
+        ('ALIGN', (0, 0), (0, 0), 'LEFT'),
+        ('ALIGN', (1, 0), (-1, 0), 'LEFT'),
     ]))
     elements.append(header_table)
-    elements.append(Spacer(1, 0.2*inch))
+    elements.append(Spacer(1, 0.15*inch))
     
     # Buyer Details
     buyer_name = invoice.buyer_name
@@ -116,141 +124,197 @@ def generate_invoice_pdf(invoice):
 
     buyer_data = [
         [Paragraph('<b>Buyer</b>', styles['Normal']), ''],
-        [Paragraph('<b>Name:</b>', styles['Normal']), Paragraph(buyer_name, styles['Normal'])],
-        [Paragraph('<b>Address:</b>', styles['Normal']), Paragraph(buyer_addr, styles['Normal'])],
-        [Paragraph('<b>GSTIN/UIN:</b>', styles['Normal']), Paragraph(buyer_gstin, styles['Normal'])],
-        [Paragraph('<b>State Name:</b>', styles['Normal']), Paragraph(f'{buyer_state}, Code: {buyer_state_code}', styles['Normal'])],
-        [Paragraph('<b>Buyer\'s Order No.</b>', styles['Normal']), Paragraph('', styles['Normal'])],
-        [Paragraph('<b>Dispatch Document No.</b>', styles['Normal']), Paragraph('', styles['Normal'])],
+        [Paragraph('<b>Name:</b>', ParagraphStyle('BuyerLabel', parent=styles['Normal'], fontSize=8)), 
+         Paragraph(buyer_name, ParagraphStyle('BuyerValue', parent=styles['Normal'], fontSize=8, fontName='Helvetica-Bold'))],
+        [Paragraph('<b>Address:</b>', ParagraphStyle('BuyerLabel', parent=styles['Normal'], fontSize=8)), 
+         Paragraph(buyer_addr, ParagraphStyle('BuyerValue', parent=styles['Normal'], fontSize=8))],
+        [Paragraph('<b>GSTIN/UIN:</b>', ParagraphStyle('BuyerLabel', parent=styles['Normal'], fontSize=8)), 
+         Paragraph(buyer_gstin, ParagraphStyle('BuyerValue', parent=styles['Normal'], fontSize=8, fontName='Helvetica-Bold'))],
+        [Paragraph(f'<b>State Name :</b> {buyer_state}, Code : {buyer_state_code}', ParagraphStyle('BuyerLabel', parent=styles['Normal'], fontSize=8)), 
+         Paragraph('', styles['Normal'])],
     ]
     
-    buyer_table = Table(buyer_data, colWidths=[2*inch, 4*inch])
+    buyer_table = Table(buyer_data, colWidths=[2.2*inch, 4*inch])
     buyer_table.setStyle(TableStyle([
         ('GRID', (0, 0), (-1, -1), 1, colors.black),
         ('VALIGN', (0, 0), (-1, -1), 'TOP'),
         ('FONTSIZE', (0, 0), (-1, -1), 8),
+        ('SPAN', (0, 4), (1, 4)),
     ]))
     elements.append(buyer_table)
-    elements.append(Spacer(1, 0.3*inch))
+    elements.append(Spacer(1, 0.2*inch))
     
     # Items Table
-    items_data = [['S.No', 'Description of Goods', 'HSN/SAC', 'Qty', 'Rate', 'per', 'Amount']]
-    
+    items_data = [['S.No', 'Description of Goods', 'HSN/SAC', 'Quantity', 'Rate', 'per', 'Amount']]
+
+    # Build item rows
     for i, item in enumerate(invoice.items.all(), 1):
+        amount_str = f"{item.amount:,.2f}"
+        rate_str = f"{item.rate:,.2f}"
         items_data.append([
             str(i),
-            f'{item.mobile.name} {item.mobile.model}',
+            Paragraph(f"<b>{item.mobile.name} {item.mobile.model}</b>", ParagraphStyle('ItemDesc', parent=styles['Normal'], fontSize=8)),
             item.hsn_code,
-            str(item.quantity),
-            f'₹{item.rate:.2f}',
+            f"{item.quantity} no",
+            rate_str,
             'nos',
-            f'₹{item.amount:.2f}'
+            amount_str
         ])
-    
-    # Add tax rows
+
+    # Tax breakdown rows (under the items, no extra blank spacing rows)
+    subtotal = invoice.get_subtotal()
+    cgst_amt = (subtotal * invoice.cgst_rate) / 100
+    sgst_amt = (subtotal * invoice.sgst_rate) / 100
+    round_off = invoice.get_roundoff()
+
     items_data.append([
         '',
-        'CGST',
-        '',
-        '',
-        f'{invoice.cgst_rate}%',
-        '',
-        f'₹{invoice.get_cgst_amount():.2f}'
+        Paragraph('<i>CGST</i>', ParagraphStyle('TaxLabel', parent=styles['Normal'], fontSize=8)),
+        '', '', f"{invoice.cgst_rate}%", '', f"{cgst_amt:,.2f}"
     ])
-    
     items_data.append([
         '',
-        'SGST',
-        '',
-        '',
-        f'{invoice.sgst_rate}%',
-        '',
-        f'₹{invoice.get_sgst_amount():.2f}'
+        Paragraph('<i>SGST</i>', ParagraphStyle('TaxLabel', parent=styles['Normal'], fontSize=8)),
+        '', '', f"{invoice.sgst_rate}%", '', f"{sgst_amt:,.2f}"
     ])
-    
     items_data.append([
         '',
-        'Round off',
-        '',
-        '',
-        '',
-        '',
-        f'₹{invoice.get_roundoff():.2f}'
+        Paragraph('<i>Round off</i>', ParagraphStyle('TaxLabel', parent=styles['Normal'], fontSize=8)),
+        '', '', '', '', f"{round_off:,.2f}"
     ])
-    
-    items_table = Table(items_data, colWidths=[0.5*inch, 2.5*inch, 0.8*inch, 0.6*inch, 0.8*inch, 0.5*inch, 1*inch])
+
+    # Total row (bold label)
+    grand_total = subtotal + cgst_amt + sgst_amt + round_off
+    qty_total = sum(item.quantity for item in invoice.items.all())
+    items_data.append([
+        '',
+        Paragraph('<b>Total</b>', ParagraphStyle('TotalLabel', parent=styles['Normal'], fontSize=8)),
+        '', f"{qty_total} no", '', '', f"{grand_total:,.2f}"
+    ])
+
+    items_table = Table(items_data, colWidths=[0.5*inch, 2.4*inch, 0.9*inch, 0.9*inch, 0.7*inch, 0.5*inch, 1.2*inch])
     items_table.setStyle(TableStyle([
         ('GRID', (0, 0), (-1, -1), 1, colors.black),
         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
         ('FONTSIZE', (0, 0), (-1, -1), 8),
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
         ('ALIGN', (1, 0), (1, -1), 'LEFT'),
+        ('ALIGN', (6, 0), (6, -1), 'RIGHT'),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
     ]))
     elements.append(items_table)
-    elements.append(Spacer(1, 0.2*inch))
+    elements.append(Spacer(1, 0.15*inch))
+    
+    # Amount Chargeable (in words) - Create a centered box style section
+    total = invoice.get_grand_total()
+    grand_total_words = number_to_words(int(total))
+    
+    amount_box_data = [
+        [Paragraph(f'<b>Amount Chargeable (in words)</b>', ParagraphStyle('AmountLabel', parent=styles['Normal'], fontSize=8))],
+        [Paragraph(f'<b>INR {grand_total_words} Only</b>', ParagraphStyle('AmountWords', parent=styles['Normal'], fontSize=9, fontName='Helvetica-Bold'))],
+    ]
+    
+    amount_box_table = Table(amount_box_data, colWidths=[6*inch])
+    amount_box_table.setStyle(TableStyle([
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('ALIGN', (0, 0), (0, 0), 'LEFT'),
+        ('ALIGN', (0, 1), (0, 1), 'CENTER'),
+        ('FONTSIZE', (0, 0), (-1, -1), 8),
+        ('TOPPADDING', (0, 0), (-1, -1), 3),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
+    ]))
+    elements.append(amount_box_table)
+    elements.append(Spacer(1, 0.1*inch))
     
     # Tax Summary Table
     subtotal = invoice.get_subtotal()
     cgst = invoice.get_cgst_amount()
     sgst = invoice.get_sgst_amount()
-    total = invoice.get_grand_total()
     
     tax_data = [
-        ['HSN/SAC', 'Taxable Value', 'Central Tax Rate', 'Central Tax Amount', 'State Tax Rate', 'State Tax Amount', 'Total Tax Amount'],
-        [
-            invoice.items.first().hsn_code if invoice.items.exists() else '',
-            f'₹{subtotal:.2f}',
-            f'{invoice.cgst_rate}%',
-            f'₹{cgst:.2f}',
-            f'{invoice.sgst_rate}%',
-            f'₹{sgst:.2f}',
-            f'₹{cgst + sgst:.2f}'
-        ],
-        [
-            'Total',
-            f'₹{subtotal:.2f}',
-            '',
-            f'₹{cgst:.2f}',
-            '',
-            f'₹{sgst:.2f}',
-            f'₹{cgst + sgst:.2f}'
-        ]
+        ['HSN/SAC', 'Taxable Value', 'Central Tax\nRate', 'Central Tax\nAmount', 'State Tax\nRate', 'State Tax\nAmount', 'Total Tax\nAmount'],
     ]
     
-    tax_table = Table(tax_data, colWidths=[0.8*inch, 1.2*inch, 1*inch, 1*inch, 1*inch, 1*inch, 1*inch])
+    # Add rows for each HSN/SAC code
+    hsn_codes = invoice.items.values_list('hsn_code', flat=True).distinct()
+    total_tax = cgst + sgst
+    
+    for hsn in hsn_codes:
+        items_with_hsn = invoice.items.filter(hsn_code=hsn)
+        hsn_subtotal = sum(item.amount for item in items_with_hsn)
+        hsn_cgst = (hsn_subtotal * invoice.cgst_rate) / 100
+        hsn_sgst = (hsn_subtotal * invoice.sgst_rate) / 100
+        
+        tax_data.append([
+            hsn,
+            f'{hsn_subtotal:.2f}',
+            f'{invoice.cgst_rate}%',
+            f'{hsn_cgst:.2f}',
+            f'{invoice.sgst_rate}%',
+            f'{hsn_sgst:.2f}',
+            f'{hsn_cgst + hsn_sgst:.2f}'
+        ])
+    
+    # Total row
+    tax_data.append([
+        'Total',
+        f'{subtotal:.2f}',
+        '',
+        f'{cgst:.2f}',
+        '',
+        f'{sgst:.2f}',
+        f'{total_tax:.2f}'
+    ])
+    
+    tax_table = Table(tax_data, colWidths=[0.75*inch, 0.95*inch, 0.85*inch, 0.95*inch, 0.85*inch, 0.95*inch, 0.95*inch])
     tax_table.setStyle(TableStyle([
         ('GRID', (0, 0), (-1, -1), 1, colors.black),
         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, -1), 8),
+        ('FONTSIZE', (0, 0), (-1, -1), 7),
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
+        ('TOPPADDING', (0, 0), (-1, -1), 2),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
     ]))
     elements.append(tax_table)
-    elements.append(Spacer(1, 0.2*inch))
+    elements.append(Spacer(1, 0.15*inch))
     
-    # Grand Total Section
-    grand_total_text = f'₹ {total:,.2f}'
-    grand_total_words = f'INR {number_to_words(total)} Only'
-    
-    elements.append(Paragraph(f'<b>Amount Chargeable (in words): </b> {grand_total_words}', styles['Normal']))
-    elements.append(Spacer(1, 0.1*inch))
-    
-    # Declaration
-    elements.append(Paragraph('<b>Declaration:</b>', styles['Normal']))
-    elements.append(Paragraph('We declare that this invoice shows the actual price of the goods described and that all particulars are true and correct.', styles['Normal']))
-    elements.append(Spacer(1, 0.1*inch))
-    
-    # Footer
-    elements.append(Spacer(1, 0.3*inch))
-    footer_data = [
-        [Paragraph('', styles['Normal']), Paragraph(f'for {invoice.company_name}', styles['Normal'])],
-        [Paragraph('', styles['Normal']), Paragraph('Authorised Signatory', styles['Normal'])],
+    # Declaration and Signature Section
+    declaration_data = [
+        [
+            Paragraph(
+                '<b>Declaration:</b><br/>'
+                'We declare that this invoice shows the actual price of the goods described and that all particulars are true and correct.',
+                ParagraphStyle('DeclarationStyle', parent=styles['Normal'], fontSize=8, leading=10)
+            ),
+            Paragraph(
+                f'<b>for {invoice.company_name}</b><br/><br/><br/>'
+                '<b>Authorised Signatory</b>',
+                ParagraphStyle('SignatureStyle', parent=styles['Normal'], fontSize=8, leading=12, alignment=TA_CENTER)
+            )
+        ]
     ]
-    footer_table = Table(footer_data, colWidths=[3*inch, 3*inch])
-    footer_table.setStyle(TableStyle([
-        ('FONTSIZE', (0, 0), (-1, -1), 9),
+    
+    declaration_table = Table(declaration_data, colWidths=[3.5*inch, 2.5*inch])
+    declaration_table.setStyle(TableStyle([
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+        ('FONTSIZE', (0, 0), (-1, -1), 8),
+        ('TOPPADDING', (0, 0), (-1, -1), 5),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
     ]))
-    elements.append(footer_table)
+    elements.append(declaration_table)
+    elements.append(Spacer(1, 0.15*inch))
+    
+    # Footer note
+    footer_style = ParagraphStyle(
+        'FooterStyle',
+        parent=styles['Normal'],
+        fontSize=7,
+        alignment=TA_CENTER,
+        textColor=colors.grey
+    )
+    elements.append(Paragraph('This is a Computer Generated Invoice', footer_style))
     
     # Build PDF
     doc.build(elements)

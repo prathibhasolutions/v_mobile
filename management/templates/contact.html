@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block title %}Contact | Venkateshwara Mobiles{% endblock %}
+
+{% block hero %}
+<section class="page-hero">
+  <div class="page-hero-inner">
+    <div>
+      <h1>Contact Us</h1>
+      <p class="muted">Visit, call, or drop a message. We respond quickly.</p>
+    </div>
+    <div class="pill-row">
+      <span class="pill">Store Pickup</span>
+      <span class="pill">Doorstep Service</span>
+      <span class="pill">Fast Response</span>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block content %}
+<section class="section two-col">
+  <div>
+    <h2>Store</h2>
+    <p class="muted">Tilak Garden Complex, Nizamabad</p>
+    <ul class="contact-list">
+      <li><i class="fa-solid fa-phone"></i> +91-9989426177</li>
+      <li><i class="fa-solid fa-envelope"></i> support@venkmobiles.com</li>
+      <li><i class="fa-solid fa-location-dot"></i> Telangana, Code: 36</li>
+      <li><i class="fa-solid fa-clock"></i> Mon–Sun: 10am – 9pm</li>
+    </ul>
+    <div class="hero-actions">
+      <a class="btn solid" href="tel:+919989426177"><i class="fa-solid fa-phone"></i> Call now</a>
+      <a class="btn ghost" href="/services/">Book a service</a>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-media" style="background-image:url('https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1200&auto=format&fit=crop');"></div>
+    <div class="panel-body">
+      <div class="pill">Find us</div>
+      <div class="pill light">Easy access</div>
+    </div>
+  </div>
+</section>
+
+<section class="section" style="background:#f8fafc;">
+  <div class="section-head">
+    <h2>Send a message</h2>
+  </div>
+  <form class="contact-form">
+    <div class="form-grid">
+      <label>Full Name<input type="text" placeholder="Your name"></label>
+      <label>Phone<input type="text" placeholder="Contact number"></label>
+      <label>Email<input type="email" placeholder="Email"></label>
+      <label>Device<input type="text" placeholder="Model / Issue"></label>
+    </div>
+    <label>Message<textarea rows="4" placeholder="How can we help?"></textarea></label>
+    <button type="button" class="btn solid">Send message</button>
+  </form>
+</section>
+{% endblock %}

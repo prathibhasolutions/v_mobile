@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block title %}Services | Venkateshwara Mobiles{% endblock %}
+
+{% block hero %}
+<section class="page-hero">
+  <div class="page-hero-inner">
+    <div>
+      <h1>Services & Repairs</h1>
+      <p class="muted">Certified technicians, genuine parts, and transparent timelines.</p>
+    </div>
+    <div class="pill-row">
+      <span class="pill">Same-day Screens</span>
+      <span class="pill">Battery Swaps</span>
+      <span class="pill">Board Repair</span>
+      <span class="pill">Water Damage</span>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block content %}
+<section class="section two-col">
+  <div class="panel">
+    <div class="panel-media" style="background-image:url('https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?q=80&w=1200&auto=format&fit=crop');"></div>
+    <div class="panel-body">
+      <div class="pill">Diagnostics</div>
+      <div class="pill light">Free Check-up</div>
+      <div class="pill light">Pickup & Drop</div>
+    </div>
+  </div>
+  <div>
+    <h2>What we offer</h2>
+    <ul class="checklist">
+      <li>Screen and glass replacements with OEM-grade parts</li>
+      <li>Battery replacements with warranty</li>
+      <li>Board-level repairs and micro-soldering</li>
+      <li>Camera, speaker, and button fixes</li>
+      <li>Software issues, updates, and data recovery</li>
+    </ul>
+    <div class="hero-actions">
+      <a class="btn solid" href="/contact/">Book a service</a>
+      <a class="btn ghost" href="/phones/">Browse phones</a>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="process">
+  <div class="section-head">
+    <h2>How it works</h2>
+    <p class="muted">Simple 4-step process to get your device back fast</p>
+  </div>
+  <div class="steps">
+    <div class="step"><span>1</span><p>Raise a request online or walk in.</p></div>
+    <div class="step"><span>2</span><p>We diagnose and share a quote.</p></div>
+    <div class="step"><span>3</span><p>Approve and we repair with genuine parts.</p></div>
+    <div class="step"><span>4</span><p>Quality check and handover with warranty.</p></div>
+  </div>
+</section>
+{% endblock %}

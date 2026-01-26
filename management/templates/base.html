@@ -1,0 +1,96 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Venkateshwara Mobiles{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="{% static 'custom.css' %}?v=2">
+</head>
+<body>
+  <header class="site-nav">
+    <div class="nav-inner">
+      <a class="brand" href="/">
+        <span class="brand-icon"><i class="fa-solid fa-mobile-screen-button"></i></span>
+        <div class="brand-text">
+          <strong>Venkateshwara</strong>
+          <small>Mobiles</small>
+        </div>
+      </a>
+      <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <nav class="links" id="navMenu">
+        <a href="/">Home</a>
+        <a href="/phones/">Phones</a>
+        <a href="/services/">Services</a>
+        <a href="/about/">About</a>
+        <a href="/contact/">Contact</a>
+      </nav>
+      <div class="nav-cta">
+        <a class="btn ghost" href="/phones/">Shop Now</a>
+        <a class="btn solid" href="/admin/"><i class="fa-solid fa-user-shield"></i> Admin</a>
+      </div>
+    </div>
+  </header>
+
+  {% block hero %}{% endblock %}
+
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div>
+        <div class="brandline">Venkateshwara Mobiles</div>
+        <div class="muted">Tilak Garden Complex, Nizamabad</div>
+        <div class="muted">GSTIN/UIN: 36CHEPM3931K1Z5 • Telangana • Code: 36</div>
+        <div class="muted">Phone: +91-90000-00000 • Email: support@venkmobiles.com</div>
+      </div>
+      <div class="footer-links">
+        <a href="/phones/">Phones</a>
+        <a href="/services/">Services</a>
+        <a href="/about/">About</a>
+        <a href="/contact/">Contact</a>
+      </div>
+      <div class="footer-cta">
+        <a class="btn ghost" href="tel:+919000000000"><i class="fa-solid fa-phone"></i> Call Us</a>
+        <a class="btn solid" href="/admin/"><i class="fa-solid fa-user-shield"></i> Admin Login</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span class="muted">© {{ now|date:'Y' }} Venkateshwara Mobiles. All rights reserved.</span>
+      <a class="designer" href="https://www.prathibhasolutions.com" target="_blank" rel="noopener">Designed by Prathibha Solutions</a>
+    </div>
+  </footer>
+
+  <a class="whatsapp-btn" href="https://wa.me/919989426177" target="_blank" rel="noopener" title="Chat on WhatsApp">
+    <i class="fa-brands fa-whatsapp"></i>
+  </a>
+
+  <script>
+    const menuToggle = document.getElementById('menuToggle');
+    const navMenu = document.getElementById('navMenu');
+    
+    menuToggle.addEventListener('click', () => {
+      navMenu.classList.toggle('active');
+      menuToggle.classList.toggle('active');
+    });
+
+    // Close menu when a link is clicked
+    navMenu.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        navMenu.classList.remove('active');
+        menuToggle.classList.remove('active');
+      });
+    });
+  </script>
+</body>
+</html>
